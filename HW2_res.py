@@ -2,6 +2,9 @@
 #%% 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 #%%
 def dimensionless_time(k,t,phi,ct,re,mu):
@@ -77,6 +80,7 @@ re = np.sqrt(3000*43560/(np.pi*(140/360)))
 ra = np.sqrt(60000*43560/(np.pi*(140/360)))
 Wei = fetovich_inital_encroachable_water(pi=2700,ct=7E-6,ra=ra,re=re,phi=0.2,theta=140,ha=50)
 j = fetkovich_productivity_index(ra=ra,re=re,theta=140,ha=50,k=400,mu=1)/24
+U = 1.119*0.389*0.2*7E-6*50*10342.3**2
 
 time = np.array([0,75,150,225,300,375,500,750,1000])
 pressures = np.array([2700,2650,2627,2568,2540,2485,2440,2371,2316])
@@ -151,5 +155,31 @@ for i in range(1,len(VEH_df)):
     VEH_df.at[i,'Wen'] = VEH_copy['ΔWe'].sum()
 
     # print(VEH_copy['Δt'])
+VEH_df['Wen'] = VEH_df['Wen']*U
 
 #%%
+fig, ax = plt.subplots(1, 2, figsize=(12, 5), layout='constrained')  # (1 row, 2 columns)
+
+# First plot (Normal scale)
+sns.lineplot(data=fetkovich_df, x='time [d]', y='Wen', label='Fetkovich', ax=ax[0], linestyle='dashed')
+sns.lineplot(data=VEH_df, x='time [d]', y='Wen', label='VEH', ax=ax[0], linestyle='dashed')
+
+ax[0].legend()
+ax[0].set_xlabel('Time [Days]')
+ax[0].set_ylabel('Water Encroached [RB]')
+ax[0].set_title('Normal Scale')
+
+# Second plot (Log scale)
+sns.lineplot(data=fetkovich_df, x='time [d]', y='Wen', label='Fetkovich', ax=ax[1], linestyle='dashed')
+sns.lineplot(data=VEH_df, x='time [d]', y='Wen', label='VEH', ax=ax[1], linestyle='dashed')
+
+ax[1].legend()
+ax[1].set_xlabel('Time [Days]')
+ax[1].set_ylabel('Water Encroached [RB]')
+ax[1].set_title('Log Scale')
+ax[1].set_yscale('log')  # Corrected
+
+# Title for the entire figure
+fig.suptitle('Water Encroached [RB] vs Time [Days] for VEH and Fetkovich Models\n')
+
+plt.show()
